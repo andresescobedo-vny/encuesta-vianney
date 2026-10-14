@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e9dcef">
+  <title>Tu opinión, Vianney 💜</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --papel: #fffdf8;
+      --tinta: #2b2433;
+      --tenue: #8d8496;
+      --linea: #e4dbe8;
+      --morado: #7b2d8e;
+      --morado-2: #a24bb8;
+      --morado-claro: #f6ecf9;
+      --rojo: #c0392b;
+      --diente: 9px;
+      --mono: 'Courier Prime', 'Courier New', monospace;
+      --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #e9dcef 0%, #d6c1e0 100%) fixed;
+      font-family: var(--sans);
+      color: var(--tinta);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: max(14px, env(safe-area-inset-top)) 10px 0;
+    }
+
+    /* ---------- Impresora + ticket ---------- */
+    .impresora {
+      width: min(470px, 100%);
+      height: 18px;
+      background: linear-gradient(#4a3f52, #2e2635);
+      border-radius: 9px;
+      box-shadow: 0 4px 10px rgba(46, 20, 60, .25);
+      position: relative;
+      z-index: 2;
+    }
+    .impresora::after {
+      content: '';
+      position: absolute;
+      left: 14px; right: 14px; bottom: 4px;
+      height: 3px;
+      background: #120e16;
+      border-radius: 2px;
+    }
+    .rollo {
+      width: min(440px, calc(100% - 14px));
+      margin-top: -5px;
+      overflow: hidden;
+      padding-bottom: 24px;
+    }
+    .ticket {
+      background: var(--papel);
+      position: relative;
+      padding: 24px 18px 26px;
+      box-shadow: 0 10px 24px rgba(60, 20, 70, .16);
+      animation: imprimir 1.1s cubic-bezier(.3, .7, .4, 1) both;
+    }
+    .ticket::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: calc(var(--diente) * -1);
+      height: var(--diente);
+      background:
+        linear-gradient(-45deg, transparent 70%, var(--papel) 0) 0 0 / calc(var(--diente) * 2) 100%,
+        linear-gradient(45deg, transparent 70%, var(--papel) 0) 0 0 / calc(var(--diente) * 2) 100%;
+    }
+    @keyframes imprimir { from { transform: translateY(-100%); } }
+
+    /* ---------- Encabezado de ticket ---------- */
+    .centro { text-align: center; }
+    .marca {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: var(--morado);
+    }
+    .sub { margin: 2px 0 0; font-family: var(--mono); font-size: 13px; color: var(--tenue); }
+    .corte { border: 0; border-top: 2px dashed var(--linea); margin: 16px 0; }
+    .doble { border-top: 4px double var(--tinta); }
+    .datos { font-family: var(--mono); font-size: 13px; }
+    .renglon { display: flex; justify-content: space-between; gap: 8px; }
+    .saludo { font-size: 16px; line-height: 1.45; margin: 0; color: #4a4252; text-align: center; }
+
+    /* ---------- Secciones del ticket ---------- */
+    .seccion {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 22px 0 2px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--tenue);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .seccion::before, .seccion::after { content: ''; flex: 1; border-top: 2px dashed var(--linea); }
+    .seccion.total { color: var(--tinta); }
+    .seccion.total::before, .seccion.total::after { border-top: 4px double var(--tinta); }
+
+    /* ---------- Cada pregunta = un artículo del ticket ---------- */
+    .item { padding: 14px 0 18px; scroll-margin: 90px 0 130px; }
+    .item + .item { border-top: 1px dashed var(--linea); }
+    .item-cab { display: flex; gap: 10px; align-items: baseline; margin-bottom: 12px; }
+    .num { font-family: var(--mono); font-size: 13px; color: var(--morado); flex: none; }
+    .pregunta { flex: 1; font-size: 17px; font-weight: 800; line-height: 1.3; }
+    .opcional { font-weight: 500; color: var(--tenue); }
+    .precio {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 15px;
+      flex: none;
+      min-width: 2.6em;
+      text-align: right;
+      color: var(--morado);
+    }
+    .precio.vacio { color: #cfc5d4; }
+    .falta .pregunta { color: var(--rojo); }
+    .falta [role="radiogroup"] { animation: sacudir .4s; }
+    @keyframes sacudir { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+    /* Botones de respuesta (comunes) */
+    .resp {
+      font: inherit;
+      color: var(--tinta);
+      background: #fff;
+      border: 2px solid var(--linea);
+      border-radius: 14px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform .12s, border-color .15s, background .15s, filter .15s, opacity .15s;
+    }
+    .resp:active { transform: scale(.95); }
+    .resp[aria-checked="true"] { border-color: var(--morado); background: var(--morado-claro); color: var(--morado); }
+    .resp:focus-visible { outline: 3px solid #d7a8e4; outline-offset: 2px; }
+
+    /* Opciones de un toque */
+    .opciones { display: grid; gap: 8px; grid-template-columns: 1fr; }
+    .opciones.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .opciones.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .opc {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+      padding: 8px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: left;
+    }
+    .opc .emoji { font-size: 22px; flex: none; }
+    .c2 .opc, .c3 .opc { justify-content: center; text-align: center; }
+    .c3 .opc { flex-direction: column; gap: 4px; padding: 10px 6px; }
+    .c2 .opc:has(.emoji) { flex-direction: column; gap: 4px; padding: 10px 6px; }
+    .c2 .opc span, .c3 .opc span { min-width: 0; overflow-wrap: break-word; }
+
+    /* Escala con caritas */
+    .caritas { display: flex; gap: 6px; }
+    .carita { flex: 1; height: 56px; font-size: 30px; line-height: 1; filter: grayscale(.3); }
+    .con-respuesta .carita { opacity: .45; filter: grayscale(1); }
+    .con-respuesta .carita[aria-checked="true"] { opacity: 1; filter: none; transform: scale(1.08); }
+
+    /* 0 a 10 */
+    .nps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .nps .resp { height: 50px; font-family: var(--mono); font-size: 19px; font-weight: 700; }
+    .nps .resp[aria-checked="true"] { color: #fff; border-color: transparent; transform: scale(1.08); }
+    .nps .bajo[aria-checked="true"] { background: #d0574a; }
+    .nps .medio[aria-checked="true"] { background: #e2a33b; }
+    .nps .alto[aria-checked="true"] { background: #3e9a62; }
+
+    .leyenda {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--tenue);
+    }
+    .leyenda b { color: var(--morado); flex: 1; text-align: center; }
+
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 16px; /* >=16px evita el zoom automático en iPhone */
+      color: inherit;
+      background: #fff;
+      border: 2px solid var(--linea);
+      border-radius: 14px;
+      resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--morado); }
+
+    .a-pagar {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .codigo { display: block; width: 80%; height: 46px; margin: 18px auto 6px; }
+    .error { color: var(--rojo); text-align: center; font-size: 15px; margin: 12px 0 0; min-height: 1.2em; }
+
+    /* ---------- Barra fija para enviar ---------- */
+    .barra-envio {
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+      background: linear-gradient(rgba(214, 193, 224, 0), #d6c1e0 35%);
+      z-index: 5;
+    }
+    .enviar {
+      width: min(440px, 100%);
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, var(--morado), var(--morado-2));
+      border: 0;
+      border-radius: 16px;
+      box-shadow: 0 8px 18px rgba(123, 45, 142, .35);
+      cursor: pointer;
+      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
+    }
+    .enviar:active { transform: scale(.98); }
+    .enviar .avance {
+      position: absolute;
+      left: 0; bottom: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, .7);
+      transition: width .3s;
+    }
+    .enviar.incompleto { background: var(--tinta); box-shadow: 0 8px 18px rgba(43, 36, 51, .25); }
+    .enviar:disabled { opacity: .7; cursor: wait; }
+
+    /* ---------- Sello de gracias ---------- */
+    .velo {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(43, 36, 51, .45);
+      backdrop-filter: blur(3px);
+      z-index: 10;
+    }
+    .enviado .velo { display: flex; }
+    .enviado .barra-envio { display: none; }
+    .tarjeta-gracias {
+      width: min(360px, 100%);
+      padding: 28px 22px 24px;
+      text-align: center;
+      background: var(--papel);
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, .25);
+      animation: subir .35s ease both;
+    }
+    @keyframes subir { from { opacity: 0; transform: translateY(30px); } }
+    .sello {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 8px 22px;
+      border: 5px double var(--morado);
+      border-radius: 10px;
+      color: var(--morado);
+      font-family: var(--mono);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      transform: rotate(-8deg);
+      animation: sellar .4s cubic-bezier(.2, 1.6, .5, 1) .25s both;
+    }
+    .sello small { display: block; font-size: 13px; letter-spacing: 1px; }
+    @keyframes sellar { from { opacity: 0; transform: rotate(-8deg) scale(2.2); } }
+    .tarjeta-gracias h2 { margin: 0 0 8px; font-size: 21px; }
+    .tarjeta-gracias p { margin: 0; color: #4a4252; font-size: 16px; line-height: 1.45; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="impresora" aria-hidden="true"></div>
+  <div class="rollo">
+    <main class="ticket">
+      <header class="centro">
+        <p class="marca">VIANNEY</p>
+        <p class="sub">TICKET DE OPINIÓN 💜</p>
+      </header>
+      <hr class="corte">
+      <div class="datos">
+        <div class="renglon"><span>FECHA:</span><span id="fecha"></span></div>
+        <div class="renglon"><span>CLIENTE:</span><span id="cliente">COMUNIDAD VIANNEY</span></div>
+        <div class="renglon"><span>FOLIO:</span><span id="folio">PENDIENTE</span></div>
+      </div>
+      <hr class="corte">
+      <p class="saludo">¡Hola! 💜 Queremos que comprar en Vianney sea cada vez más fácil para ti.<br>
+        Piensa en <b>tu última compra</b> y contesta con un toque.<br><b>Es anónima y toma 1 minuto.</b></p>
+
+      <form id="encuesta" novalidate>
+        <div id="items"></div>
+        <hr class="corte doble">
+        <div class="a-pagar"><span>TOTAL A PAGAR</span><span>$0.00</span></div>
+        <p class="centro sub">No cuesta nada, pero vale oro ✨</p>
+        <hr class="corte doble">
+        <p class="error" id="error" role="alert"></p>
+      </form>
+
+      <svg class="codigo" id="codigo" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <p class="centro sub">¡GRACIAS POR SER PARTE DE VIANNEY!</p>
+    </main>
+  </div>
+
+  <div class="barra-envio">
+    <button class="enviar incompleto" id="enviar" type="submit" form="encuesta">
+      <span id="enviar-texto"></span>
+      <span class="avance" id="avance"></span>
+    </button>
+  </div>
+
+  <div class="velo" role="dialog" aria-modal="true" aria-labelledby="gracias-titulo">
+    <div class="tarjeta-gracias">
+      <div class="sello">¡GRACIAS!<small id="sello-folio"></small></div>
+      <h2 id="gracias-titulo">Tu opinión ya está con nosotros</h2>
+      <p>Con ella vamos a mejorar tu experiencia en Vianney. 💜<br>Ya puedes cerrar esta ventana.</p>
+    </div>
+  </div>
+
+  <script>
+    // Las preguntas vienen de Codigo.gs (se editan allá).
+    // Configuración generada por "configurar" en Google Sheets (pestaña ⚙️ Configuración):
+    // dirección del Form, sus "entry.XXXX" y las preguntas (se editan en Codigo.gs).
+    const CONFIG = /*CONFIG*/{"formUrl":"https://docs.google.com/forms/d/e/1FAIpQLSdPwy_JMXORF4uIkPyBrFiY7u0pTAUQqXaiAW0TobmbRBWp_g/formResponse","entradas":{"folio":"579024281","perfil":"1503235408","pedido":"1635090339","buscar":"345912279","pago":"2119038810","entrega":"692827125","atencion":"1792918649","mejorar":"215478877","comentario":"349605416","recomienda":"1458946360","dispositivo":"724157696","edad":"1333527174"},"preguntas":[{"id":"perfil","seccion":"Para empezar","tipo":"opcion","columnas":2,"segmento":true,"corto":"¿Quién contestó?","texto":"¿Cómo compras en Vianney?","opciones":[{"v":"Vendo Vianney (ADI)","e":"💼","corto":"ADIs","ticket":"ADI VIANNEY"},{"v":"Compro para mí o mi familia","e":"🛍️","corto":"Clientes","ticket":"CLIENTE VIANNEY"}]},{"id":"pedido","seccion":"Tu última compra","tipo":"opcion","corto":"¿Pudo pedir sin ayuda?","texto":"¿Pudiste hacer tu pedido en la página sin ayuda?","opciones":[{"v":"Sí, sin problema","e":"✅"},{"v":"Sí, pero necesité ayuda","e":"🤝"},{"v":"No pude terminarlo","e":"❌"}]},{"id":"buscar","tipo":"escala","corto":"Facilidad para encontrar productos","texto":"¿Qué tan fácil fue encontrar los productos que querías?","etiquetas":["Muy difícil","Difícil","Regular","Fácil","Muy fácil"]},{"id":"pago","tipo":"escala","corto":"Facilidad para pagar","texto":"¿Qué tan fácil fue pagar?","etiquetas":["Muy difícil","Difícil","Regular","Fácil","Muy fácil"],"ocultarSi":{"id":"pedido","v":"No pude terminarlo"}},{"id":"entrega","seccion":"Entrega y atención","tipo":"opcion","corto":"¿Cómo llegó el pedido?","texto":"¿Cómo te llegó tu pedido?","opciones":[{"v":"A tiempo y completo","e":"📦"},{"v":"Llegó tarde","e":"⏰"},{"v":"Incompleto o dañado","e":"💔"},{"v":"Todavía no llega","e":"⏳"}],"ocultarSi":{"id":"pedido","v":"No pude terminarlo"}},{"id":"atencion","tipo":"opcion","corto":"¿Le resolvieron sus dudas?","texto":"Si tuviste una duda o problema, ¿te ayudaron a resolverlo?","opciones":[{"v":"Sí, rápido","e":"⚡"},{"v":"Sí, pero tardaron","e":"🐢"},{"v":"No me lo resolvieron","e":"😕"},{"v":"No tuve dudas","e":"👌"}]},{"id":"mejorar","seccion":"Lo que más importa","tipo":"opcion","columnas":2,"corto":"Lo que más piden mejorar","texto":"Si pudiéramos mejorar UNA sola cosa, ¿cuál sería?","opciones":[{"v":"Encontrar productos","e":"🔎"},{"v":"Fotos y descripciones","e":"📸"},{"v":"Precios y promociones","e":"🏷️"},{"v":"Forma de pago","e":"💳"},{"v":"Envío y entrega","e":"🚚"},{"v":"Atención","e":"💬"},{"v":"Otra cosa","e":"✏️"},{"v":"Nada, todo bien","e":"💜"}]},{"id":"comentario","tipo":"texto","corto":"Comentarios","texto":"¿Quieres contarnos más?","placeholder":"Ej. no encontraba mi tono, el pago se trabó, me encantó el envío…"},{"id":"recomienda","seccion":"Total","tipo":"nps","corto":"Recomendación (0 a 10)","texto":"Del 0 al 10, ¿qué tan probable es que recomiendes comprar en Vianney a alguien que conoces?","min":"Nada probable","max":"Muy probable"},{"id":"dispositivo","seccion":"Tus datos","tipo":"opcion","columnas":3,"corto":"Dispositivo","texto":"¿Desde dónde hiciste tu pedido?","opciones":[{"v":"Celular","e":"📱"},{"v":"Computadora","e":"💻"},{"v":"Tablet","e":"📲"}]},{"id":"edad","tipo":"opcion","columnas":2,"corto":"Edad","texto":"¿Cuál es tu edad?","opciones":[{"v":"Menos de 30"},{"v":"30 a 45"},{"v":"46 a 60"},{"v":"Más de 60"}]}]}/*FIN*/;
+    const PREGUNTAS = CONFIG.preguntas;
+    const CARITAS = ['😞', '🙁', '😐', '🙂', '😍'];
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const porId = Object.fromEntries(PREGUNTAS.map((p) => [p.id, p]));
+    const respuestas = {};
+    let enviando = false;
+    const item = (id) => document.querySelector(`.item[data-id="${id}"]`);
+    const visible = (p) => !(p.ocultarSi && respuestas[p.ocultarSi.id] === p.ocultarSi.v);
+
+    // ---------- Pintar el ticket ----------
+    function botones(p) {
+      const radio = (valor, contenido, clase, etiqueta) =>
+        `<button type="button" class="resp ${clase}" role="radio" aria-checked="false" data-valor="${esc(valor)}"
+          ${etiqueta ? `aria-label="${esc(etiqueta)}"` : ''}>${contenido}</button>`;
+
+      if (p.tipo === 'escala') {
+        return `<div class="caritas" role="radiogroup" aria-label="${esc(p.texto)}">` +
+          CARITAS.map((e, i) => radio(i + 1, e, 'carita', p.etiquetas[i])).join('') + '</div>' +
+          `<div class="leyenda" id="leyenda-${p.id}"><span>${esc(p.etiquetas[0])}</span><span>${esc(p.etiquetas[4])}</span></div>`;
+      }
+      if (p.tipo === 'nps') {
+        return `<div class="nps" role="radiogroup" aria-label="${esc(p.texto)}">` +
+          Array.from({ length: 11 }, (_, n) => radio(n, n, n <= 6 ? 'bajo' : n <= 8 ? 'medio' : 'alto')).join('') + '</div>' +
+          `<div class="leyenda"><span>0 = ${esc(p.min)}</span><span>10 = ${esc(p.max)}</span></div>`;
+      }
+      if (p.tipo === 'opcion') {
+        return `<div class="opciones ${p.columnas ? 'c' + p.columnas : ''}" role="radiogroup" aria-label="${esc(p.texto)}">` +
+          p.opciones.map((o) => radio(o.v,
+            (o.e ? `<span class="emoji" aria-hidden="true">${o.e}</span>` : '') + `<span>${esc(o.v)}</span>`, 'opc')).join('') +
+          '</div>';
+      }
+      return `<textarea id="${p.id}" maxlength="2000" placeholder="${esc(p.placeholder || 'Escribe aquí…')}"></textarea>`;
+    }
+
+    let n = 0;
+    $('items').innerHTML = PREGUNTAS.map((p) => {
+      const seccion = p.seccion
+        ? `<div class="seccion ${p.tipo === 'nps' ? 'total' : ''}">${esc(p.seccion)}</div>` : '';
+      const art = 'ART.' + String(++n).padStart(2, '0');
+      const precio = p.tipo === 'escala' ? `<span class="precio vacio" id="precio-${p.id}">_/5</span>`
+        : p.tipo === 'nps' ? `<span class="precio vacio" id="precio-${p.id}">_/10</span>` : '';
+      const opcional = p.tipo === 'texto' ? ' <span class="opcional">(opcional)</span>' : '';
+      return `${seccion}<section class="item" data-id="${p.id}">
+        <div class="item-cab"><span class="num">${art}</span><span class="pregunta">${esc(p.texto)}${opcional}</span>${precio}</div>
+        ${botones(p)}</section>`;
+    }).join('');
+
+    $('fecha').textContent = new Date().toLocaleString('es-MX', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    dibujarCodigo(String(Date.now()));
+    actualizar();
+
+    // ---------- Responder con un toque ----------
+    $('items').addEventListener('click', (e) => {
+      const btn = e.target.closest('.resp');
+      if (!btn) return;
+      const sec = btn.closest('.item');
+      const p = porId[sec.dataset.id];
+      const yaEstaba = respuestas[p.id] !== undefined;
+
+      marcar(p, p.tipo === 'opcion' ? btn.dataset.valor : Number(btn.dataset.valor));
+      sec.classList.remove('falta');
+      if (p.segmento) {
+        const o = p.opciones.find((x) => x.v === respuestas[p.id]);
+        $('cliente').textContent = o.ticket || o.v.toUpperCase();
+      }
+      if (navigator.vibrate) navigator.vibrate(10);
+      aplicarCondiciones();
+      actualizar();
+
+      // Lleva suavemente a la siguiente pregunta sin contestar
+      if (!yaEstaba) {
+        const sig = PREGUNTAS.slice(PREGUNTAS.indexOf(p) + 1)
+          .find((q) => visible(q) && (q.tipo === 'texto' || respuestas[q.id] === undefined));
+        if (sig) setTimeout(() => item(sig.id).scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+      }
+    });
+
+    function marcar(p, valor) {
+      const sec = item(p.id);
+      const grupo = sec.querySelector('[role="radiogroup"]');
+      if (valor === undefined) delete respuestas[p.id];
+      else respuestas[p.id] = valor;
+      grupo.classList.toggle('con-respuesta', valor !== undefined);
+      grupo.querySelectorAll('.resp').forEach((b) =>
+        b.setAttribute('aria-checked', valor !== undefined && b.dataset.valor === String(valor)));
+
+      const precio = $('precio-' + p.id);
+      if (precio) {
+        const max = p.tipo === 'nps' ? 10 : 5;
+        precio.textContent = (valor === undefined ? '_' : valor) + '/' + max;
+        precio.classList.toggle('vacio', valor === undefined);
+      }
+      if (p.tipo === 'escala') {
+        $('leyenda-' + p.id).innerHTML = valor === undefined
+          ? `<span>${esc(p.etiquetas[0])}</span><span>${esc(p.etiquetas[4])}</span>`
+          : `<b>${esc(p.etiquetas[valor - 1])}</b>`;
+      }
+    }
+
+    // Oculta preguntas que no aplican (p. ej. "pagar" si no pudo terminar el pedido)
+    function aplicarCondiciones() {
+      PREGUNTAS.forEach((p) => {
+        if (!p.ocultarSi) return;
+        const ver = visible(p);
+        item(p.id).hidden = !ver;
+        if (!ver && respuestas[p.id] !== undefined) marcar(p, undefined);
+      });
+    }
+
+    function faltantes() {
+      return PREGUNTAS.filter((p) => p.tipo !== 'texto' && visible(p) && respuestas[p.id] === undefined);
+    }
+
+    function actualizar() {
+      const total = PREGUNTAS.filter((p) => p.tipo !== 'texto' && visible(p)).length;
+      const faltan = faltantes().length;
+      $('avance').style.width = ((total - faltan) / total) * 100 + '%';
+      $('enviar').classList.toggle('incompleto', faltan > 0);
+      if (!enviando) {
+        $('enviar-texto').textContent = faltan === 0 ? 'Enviar mi opinión 💜'
+          : faltan === 1 ? 'Falta 1 respuesta' : `Faltan ${faltan} respuestas`;
+      }
+    }
+
+    // Folio corto al azar (ej. V-7K2QX9) para identificar la respuesta en la hoja.
+    function nuevoFolio() {
+      const letras = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin 0/O ni 1/I para que no se confundan
+      return 'V-' + Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => letras[b % letras.length]).join('');
+    }
+
+    function dibujarCodigo(texto) {
+      let semilla = [...texto].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+      let x = 0, barra = true, out = '';
+      while (x < 200) {
+        semilla = (semilla * 1103515245 + 12345) >>> 0;
+        const ancho = 1 + (semilla >>> 16) % 3;
+        if (barra) out += `<rect x="${x}" y="0" width="${ancho}" height="46" fill="#2b2433"/>`;
+        x += ancho;
+        barra = !barra;
+      }
+      $('codigo').innerHTML = out;
+    }
+
+    // ---------- Enviar ----------
+    $('encuesta').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (enviando) return;
+      const error = $('error');
+
+      const faltan = faltantes();
+      if (faltan.length) {
+        faltan.forEach((p) => {
+          const sec = item(p.id);
+          sec.classList.remove('falta');
+          void sec.offsetWidth; // reinicia la animación
+          sec.classList.add('falta');
+        });
+        item(faltan[0].id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        error.textContent = 'Te faltan las preguntas marcadas en rojo.';
+        return;
+      }
+
+      error.textContent = '';
+      enviando = true;
+      const boton = $('enviar');
+      boton.disabled = true;
+      $('enviar-texto').textContent = 'Imprimiendo… 🖨️';
+
+      const datos = { ...respuestas };
+      PREGUNTAS.filter((p) => p.tipo === 'texto').forEach((p) => { datos[p.id] = $(p.id).value.trim(); });
+      datos.folio = nuevoFolio();
+
+      const listo = ({ folio }) => {
+        $('folio').textContent = folio;
+        $('sello-folio').textContent = 'FOLIO ' + folio;
+        dibujarCodigo(folio);
+        document.body.classList.add('enviado');
+      };
+      const fallo = (err) => {
+        enviando = false;
+        boton.disabled = false;
+        $('enviar-texto').textContent = 'Reintentar envío';
+        error.textContent = 'No se pudo enviar. Revisa tu conexión e intenta de nuevo.';
+        console.error(err);
+      };
+
+      if (CONFIG.formUrl) {
+        // Se envía al Google Form; él lo guarda en la hoja "Respuestas".
+        const cuerpo = new URLSearchParams();
+        Object.entries(datos).forEach(([id, v]) => {
+          if (v !== undefined && v !== '' && CONFIG.entradas[id]) cuerpo.append('entry.' + CONFIG.entradas[id], String(v));
+        });
+        fetch(CONFIG.formUrl, { method: 'POST', mode: 'no-cors', body: cuerpo })
+          .then(() => listo(datos))
+          .catch(fallo);
+      } else {
+        // Vista previa (sin Form): guarda en este navegador.
+        const l = JSON.parse(localStorage.getItem('respuestas') || '[]');
+        l.push({ ...datos, fecha: new Date().toISOString() });
+        localStorage.setItem('respuestas', JSON.stringify(l));
+        setTimeout(() => listo(datos), 600);
+      }
+    });
+  </script>
+</body>
+</html>
